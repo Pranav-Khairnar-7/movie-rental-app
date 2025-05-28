@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+       http://www.liquibase.org/xml/ns/dbchangelog
+       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- ChangeSet for creating the User table -->
+    <changeSet id="1-create-user" author="Pranav">
+        <createTable tableName="user">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)"/>
+            <column name="age" type="INT"/>
+            <column name="email" type="VARCHAR(100)"/>
+            <column name="password" type="VARCHAR(100)"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="deleted_at" type="DATETIME"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="user"/>
+        </rollback>
+    </changeSet>
+
+     <!-- ChangeSet for creating the Movies table -->
+    <changeSet id="2-create-movie" author="Pranav">
+        <createTable tableName="movie">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(200)"/>
+            <column name="description" type="VARCHAR(200)"/>
+            <column name="release_date" type="DATE"/>
+            <column name="genre" type="VARCHAR(200)"/>
+            <column name="movie_id" type="INT"/>
+            <column name="imdb_code" type="INT"/>
+            <column name="pricing_type" type="VARCHAR(20)"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="deleted_at" type="DATETIME"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="movie"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ChangeSet for creating the UserMovies table -->
+    <changeSet id="3-create-user_movies" author="Pranav">
+        <createTable tableName="user_movies">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="movie_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="deleted_at" type="DATETIME"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="user_movies"/>
+        </rollback>
+    </changeSet>
+
+      <!-- ChangeSet for creating the Cart table -->
+    <changeSet id="3-create-cart" author="Pranav">
+        <createTable tableName="cart">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cart_value" type="DECIMAL(5,2)"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="deleted_at" type="DATETIME"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="cart"/>
+        </rollback>
+    </changeSet>
+
+    <!-- ChangeSet for creating the CartItem table -->
+    <changeSet id="4-create-cart_item" author="Pranav">
+        <createTable tableName="cart_item">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cart_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="movie_id" type="VARCHAR(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="deleted_at" type="DATETIME"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="cart_item"/>
+        </rollback>
+    </changeSet>
+
+     <!-- ChangeSet for creating the PriceStore table -->
+    <changeSet id="5-create-price_store" author="Pranav">
+        <createTable tableName="price_store">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="pricing_type" type="VARCHAR(20)"/>
+            <column name="price" type="DECIMAL(4,2)"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="deleted_at" type="DATETIME"/>
+        </createTable>
+        <rollback>
+            <dropTable tableName="price_store"/>
+        </rollback>
+    </changeSet>
+
+
+    <!-- foreign key stuff -->
+    <changeSet id="add-foreign-keys-001" author="Pranav">
+    <!-- Foreign Keys for Cart and CartItem -->
+    <addForeignKeyConstraint 
+        baseTableName="cart"
+        baseColumnNames="user_id"
+        referencedTableName="user"
+        referencedColumnNames="id"
+        constraintName="fk_cart_user"/>
+
+    <addForeignKeyConstraint 
+        baseTableName="cart_item"
+        baseColumnNames="cart_id"
+        referencedTableName="cart"
+        referencedColumnNames="id"
+        constraintName="fk_cartitem_cart"/>
+
+    <addForeignKeyConstraint 
+        baseTableName="cart_item"
+        baseColumnNames="movie_id"
+        referencedTableName="movie"
+        referencedColumnNames="id"
+        constraintName="fk_cartitem_movie"/>
+
+    <!-- Foreign Keys for UserMovies -->
+    <addForeignKeyConstraint 
+        baseTableName="user_movies"
+        baseColumnNames="user_id"
+        referencedTableName="user"
+        referencedColumnNames="id"
+        constraintName="fk_user_movies_user"/>
+
+    <addForeignKeyConstraint 
+        baseTableName="user_movies"
+        baseColumnNames="movie_id"
+        referencedTableName="movie"
+        referencedColumnNames="id"
+        constraintName="fk_user_movies_movie"/>
+
+    <rollback>
+        <!-- Rollback for all FKs -->
+        <dropForeignKeyConstraint 
+            baseTableName="cart"
+            constraintName="fk_cart_user"/>
+        <dropForeignKeyConstraint 
+            baseTableName="cart_item"
+            constraintName="fk_cartitem_cart"/>
+        <dropForeignKeyConstraint 
+            baseTableName="cart_item"
+            constraintName="fk_cartitem_movie"/>
+        <dropForeignKeyConstraint 
+            baseTableName="user_movies"
+            constraintName="fk_user_movies_user"/>
+        <dropForeignKeyConstraint 
+            baseTableName="user_movies"
+            constraintName="fk_user_movies_movie"/>
+    </rollback>
+</changeSet>
+
+
+<!-- Seeders -->
+
+<changeSet id="seed-25-movies" author="Pranav">
+    <insert tableName="movie">
+        <column name="id" value="88134d5a-8069-494d-a03d-51bea3b5e7b9"/>
+        <column name="title" value="The Shawshank Redemption"/>
+        <column name="description" value="Two imprisoned men bond over years."/>
+        <column name="release_date" value="1994-09-22"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="1"/>
+        <column name="imdb_code" value="11111"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="movie">
+        <column name="id" value="263cb096-970b-4ee6-84d3-54fb75c2afee"/>
+        <column name="title" value="Inception"/>
+        <column name="description" value="A thief enters dreams."/>
+        <column name="release_date" value="2010-07-16"/>
+        <column name="genre" value="Sci-Fi"/>
+        <column name="movie_id" value="2"/>
+        <column name="imdb_code" value="22222"/>
+        <column name="pricing_type" value="New Release"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="movie">
+        <column name="id" value="d7d1db80-3a0c-4c06-855c-48e690005d20"/>
+        <column name="title" value="The Godfather"/>
+        <column name="description" value="The aging patriarch transfers control."/>
+        <column name="release_date" value="1972-03-24"/>
+        <column name="genre" value="Crime"/>
+        <column name="movie_id" value="3"/>
+        <column name="imdb_code" value="33333"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="movie">
+        <column name="id" value="31810471-0104-46c5-8014-c5650f181d5e"/>
+        <column name="title" value="The Dark Knight"/>
+        <column name="description" value="Batman faces the Joker."/>
+        <column name="release_date" value="2008-07-18"/>
+        <column name="genre" value="Action"/>
+        <column name="movie_id" value="4"/>
+        <column name="imdb_code" value="44444"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="movie">
+        <column name="id" value="cf5adcdb-57b9-4fd6-a604-e38d0e42e870"/>
+        <column name="title" value="Forrest Gump"/>
+        <column name="description" value="Life is like a box of chocolates."/>
+        <column name="release_date" value="1994-07-06"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="5"/>
+        <column name="imdb_code" value="55555"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+
+    <insert tableName="movie">
+        <column name="id" value="2c5b8b05-3b46-44ee-8f93-76430e1fa3c5"/>
+        <column name="title" value="Interstellar"/>
+        <column name="description" value="A team of explorers travels through a wormhole in space."/>
+        <column name="release_date" value="2014-11-07"/>
+        <column name="genre" value="Sci-Fi"/>
+        <column name="movie_id" value="6"/>
+        <column name="imdb_code" value="66666"/>
+        <column name="pricing_type" value="New Release"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="movie">
+        <column name="id" value="5e88e86a-1ba5-44dd-b8f1-252b7db95a03"/>
+        <column name="title" value="The Matrix"/>
+        <column name="description" value="A computer hacker learns the true nature of reality."/>
+        <column name="release_date" value="1999-03-31"/>
+        <column name="genre" value="Action"/>
+        <column name="movie_id" value="7"/>
+        <column name="imdb_code" value="77777"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="movie">
+        <column name="id" value="f6864aba-3ac6-4611-bfce-0ebc67254c6f"/>
+        <column name="title" value="The Lion King"/>
+        <column name="description" value="A young lion prince flees his kingdom after the murder of his father."/>
+        <column name="release_date" value="1994-06-24"/>
+        <column name="genre" value="Animation"/>
+        <column name="movie_id" value="8"/>
+        <column name="imdb_code" value="88888"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="6997d9d9-e75b-4bbd-b1a3-c90bfb9353e1"/>
+        <column name="title" value="Gladiator"/>
+        <column name="description" value="A former Roman General sets out to exact vengeance."/>
+        <column name="release_date" value="2000-05-05"/>
+        <column name="genre" value="Action"/>
+        <column name="movie_id" value="9"/>
+        <column name="imdb_code" value="99999"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="a58c59f2-7431-4d4b-8d15-d7caafdd4470"/>
+        <column name="title" value="The Prestige"/>
+        <column name="description" value="Two magicians engage in a deadly rivalry."/>
+        <column name="release_date" value="2006-10-20"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="10"/>
+        <column name="imdb_code" value="101010"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="ef43efbf-c618-4134-b89c-2c3f764db7df"/>
+        <column name="title" value="3 Idiots"/>
+        <column name="description" value="Three friends embark on a journey of self-discovery."/>
+        <column name="release_date" value="2009-12-25"/>
+        <column name="genre" value="Comedy"/>
+        <column name="movie_id" value="11"/>
+        <column name="imdb_code" value="111111"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="a7224918-9bb5-4958-ac4c-72299fda2ebf"/>
+        <column name="title" value="Dilwale Dulhania Le Jayenge"/>
+        <column name="description" value="A love story that defines an era."/>
+        <column name="release_date" value="1995-10-20"/>
+        <column name="genre" value="Romance"/>
+        <column name="movie_id" value="12"/>
+        <column name="imdb_code" value="222222"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="28560246-5b50-4c46-bcb2-86a82f29838d"/>
+        <column name="title" value="Dangal"/>
+        <column name="description" value="A father trains his daughters to become wrestling champions."/>
+        <column name="release_date" value="2016-12-23"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="13"/>
+        <column name="imdb_code" value="333333"/>
+        <column name="pricing_type" value="New Release"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="6063b9eb-458d-4b18-8635-cc3aebab65b4"/>
+        <column name="title" value="Zindagi Na Milegi Dobara"/>
+        <column name="description" value="Three friends go on a road trip to Spain."/>
+        <column name="release_date" value="2011-07-15"/>
+        <column name="genre" value="Adventure"/>
+        <column name="movie_id" value="14"/>
+        <column name="imdb_code" value="444444"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="edd3c70d-583a-49f9-87d9-d65ec126a914"/>
+        <column name="title" value="Sholay"/>
+        <column name="description" value="Two criminals hired to capture a ruthless bandit."/>
+        <column name="release_date" value="1975-08-15"/>
+        <column name="genre" value="Action"/>
+        <column name="movie_id" value="15"/>
+        <column name="imdb_code" value="555555"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="e74b150b-91fc-4ccb-b839-1f614212ce3b"/>
+        <column name="title" value="Gully Boy"/>
+        <column name="description" value="A story of a street rapper from Mumbai."/>
+        <column name="release_date" value="2019-02-14"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="16"/>
+        <column name="imdb_code" value="666666"/>
+        <column name="pricing_type" value="New Release"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="270233b0-e563-4534-aab9-aea1fd5d5ab8"/>
+        <column name="title" value="Chak De! India"/>
+        <column name="description" value="A former hockey player becomes a coach for the women's team."/>
+        <column name="release_date" value="2007-08-10"/>
+        <column name="genre" value="Sports"/>
+        <column name="movie_id" value="17"/>
+        <column name="imdb_code" value="777777"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="7c719c9e-9b3d-42b5-b6fc-10a5ed0bc826"/>
+        <column name="title" value="Barfi!"/>
+        <column name="description" value="A deaf and mute man falls in love with an autistic girl."/>
+        <column name="release_date" value="2012-09-14"/>
+        <column name="genre" value="Romance"/>
+        <column name="movie_id" value="18"/>
+        <column name="imdb_code" value="888888"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="872e0d04-c3ff-48f6-8ee8-c0c1961707dd"/>
+        <column name="title" value="Lagaan"/>
+        <column name="description" value="Villagers challenge the British to a game of cricket."/>
+        <column name="release_date" value="2001-06-15"/>
+        <column name="genre" value="Sports"/>
+        <column name="movie_id" value="19"/>
+        <column name="imdb_code" value="999999"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="22bcc31f-ab33-4973-9f04-605d5b8a0cdf"/>
+        <column name="title" value="Andhadhun"/>
+        <column name="description" value="A blind pianist unwittingly becomes embroiled in a murder."/>
+        <column name="release_date" value="2018-10-05"/>
+        <column name="genre" value="Thriller"/>
+        <column name="movie_id" value="20"/>
+        <column name="imdb_code" value="1010101"/>
+        <column name="pricing_type" value="New Release"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="08c384f8-ccf4-4e16-a108-f598e458138c"/>
+        <column name="title" value="Sairat"/>
+        <column name="description" value="A story of love across caste boundaries."/>
+        <column name="release_date" value="2016-04-29"/>
+        <column name="genre" value="Romance"/>
+        <column name="movie_id" value="21"/>
+        <column name="imdb_code" value="1111121"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="ce9ca2e9-8993-403c-94a4-aa72bc66c044"/>
+        <column name="title" value="Court"/>
+        <column name="description" value="A courtroom drama that challenges legal absurdities."/>
+        <column name="release_date" value="2015-04-17"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="22"/>
+        <column name="imdb_code" value="1111122"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="d3235a85-91bf-4818-b9b1-ccb1f2333d42"/>
+        <column name="title" value="Harishchandrachi Factory"/>
+        <column name="description" value="The making of India's first feature film."/>
+        <column name="release_date" value="2009-01-09"/>
+        <column name="genre" value="Historical"/>
+        <column name="movie_id" value="23"/>
+        <column name="imdb_code" value="1111123"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="54e914c8-e530-4a30-bd49-62880b16fea4"/>
+        <column name="title" value="Killa"/>
+        <column name="description" value="A young boy navigates life in a coastal village."/>
+        <column name="release_date" value="2015-06-26"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="24"/>
+        <column name="imdb_code" value="1111124"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+    
+    <insert tableName="movie">
+        <column name="id" value="a24200ff-2f90-46d8-9b07-4cc67ca953eb"/>
+        <column name="title" value="Fandry"/>
+        <column name="description" value="A love story intertwined with caste discrimination."/>
+        <column name="release_date" value="2014-02-14"/>
+        <column name="genre" value="Drama"/>
+        <column name="movie_id" value="25"/>
+        <column name="imdb_code" value="1111125"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="price_store">
+        <column name="id" value="443a5f92-131e-42d9-9862-4a202c6fc922"/>
+        <column name="pricing_type" value="New Release"/>
+        <column name="price" value="50.00"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="price_store">
+        <column name="id" value="3033557e-1bf0-4fc4-8783-5070df1c51e4"/>
+        <column name="pricing_type" value="Classic"/>
+        <column name="price" value="20.00"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+    <insert tableName="price_store">
+        <column name="id" value="631c7ea3-8d61-446f-b9f8-1385e8ccd747"/>
+        <column name="pricing_type" value="Regular"/>
+        <column name="price" value="30.00"/>
+        <column name="created_at" valueDate="NOW()"/>
+        <column name="updated_at" valueDate="NOW()"/>
+        <column name="deleted_at" value="NULL"/>
+    </insert>
+
+
+    <rollback>
+    <delete tableName="movie">
+        <where>
+            id IN (
+                '88134d5a-8069-494d-a03d-51bea3b5e7b9',
+                '263cb096-970b-4ee6-84d3-54fb75c2afee',
+                'd7d1db80-3a0c-4c06-855c-48e690005d20',
+                '31810471-0104-46c5-8014-c5650f181d5e',
+                'cf5adcdb-57b9-4fd6-a604-e38d0e42e870',
+                '2c5b8b05-3b46-44ee-8f93-76430e1fa3c5',
+                '5e88e86a-1ba5-44dd-b8f1-252b7db95a03',
+                'f6864aba-3ac6-4611-bfce-0ebc67254c6f',
+                '6997d9d9-e75b-4bbd-b1a3-c90bfb9353e1',
+                'a58c59f2-7431-4d4b-8d15-d7caafdd4470',
+                'ef43efbf-c618-4134-b89c-2c3f764db7df',
+                'a7224918-9bb5-4958-ac4c-72299fda2ebf',
+                '28560246-5b50-4c46-bcb2-86a82f29838d',
+                '6063b9eb-458d-4b18-8635-cc3aebab65b4',
+                'edd3c70d-583a-49f9-87d9-d65ec126a914',
+                'e74b150b-91fc-4ccb-b839-1f614212ce3b',
+                '270233b0-e563-4534-aab9-aea1fd5d5ab8',
+                '7c719c9e-9b3d-42b5-b6fc-10a5ed0bc826',
+                '872e0d04-c3ff-48f6-8ee8-c0c1961707dd',
+                '22bcc31f-ab33-4973-9f04-605d5b8a0cdf',
+                '08c384f8-ccf4-4e16-a108-f598e458138c',
+                'ce9ca2e9-8993-403c-94a4-aa72bc66c044',
+                'd3235a85-91bf-4818-b9b1-ccb1f2333d42',
+                '54e914c8-e530-4a30-bd49-62880b16fea4',
+                'a24200ff-2f90-46d8-9b07-4cc67ca953eb'
+            )
+        </where>
+    </delete>
+    
+    <delete tableName="price_store">
+        <where>
+            id IN (
+                '443a5f92-131e-42d9-9862-4a202c6fc922',
+                '3033557e-1bf0-4fc4-8783-5070df1c51e4',
+                '631c7ea3-8d61-446f-b9f8-1385e8ccd747'
+            )
+        </where>
+    </delete>
+</rollback>
+</changeSet>
+
+
+</databaseChangeLog>

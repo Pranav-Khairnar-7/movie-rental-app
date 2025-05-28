@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/joho/godotenv"
+	"github.com/movie-rental-app/util"
 )
 
 func TestENVRead(t *testing.T) {
@@ -17,14 +18,6 @@ func TestENVRead(t *testing.T) {
 	}
 
 	// Assersion check to check the hostname
-	assert(t, "host.docker.internal", os.Getenv("DB_HOST"))
+	util.Assert(t, "host.docker.internal", os.Getenv("DB_HOST"))
 	fmt.Println("Environment variables loaded successfully")
-}
-
-func assert(t *testing.T, expected, actual string) {
-	if expected != actual {
-		t.Errorf("Expected %s, but got %s", expected, actual)
-	} else {
-		fmt.Println("Assertion passed")
-	}
 }
